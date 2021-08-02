@@ -1,5 +1,11 @@
-const db = require('../data');
-const format = require('pg-format');
+const db = require("../connection.js");
+const format = require("pg-format");
+const {
+  formatTopicData,
+  formatUserData,
+  formatArticleData,
+  formatCommentData,
+} = require(`../utils/data-manipulation`);
 
 const seed = async ({ articleData, commentData, topicData, userData }) => {
   await db.query(`DROP TABLE IF EXISTS comments`);
@@ -26,7 +32,7 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
     topic TEXT REFERENCES topics(slug),
     author VARCHAR(60) REFERENCES users(username),
     created_at TIMESTAMP
-  );`)
+  );`);
 
   await db.query(`CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY,
@@ -35,8 +41,47 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
     votes INT,
     created_at TIMESTAMP,
     body TEXT
-  );`)
-  
+  );`);
+  let insertTopicsData = format(
+    `INSERT INTO topics
+    (slug, description)
+    VALUES %L
+    RETURNING *;`,
+    formatTopicData(topicData)
+  );
+
+  await db.query(insertTopicsData);
+
+  let insertUserData = format(
+    `INSERT INTO users
+    (username,avatar_url,name)
+    VALUES %L
+    RETURNING *;`,
+    formatUserData(userData)
+  );
+
+  await db.query(insertUserData);
+
+  let insertArticlesData = format(
+    `INSERT INTO articles
+    (title, body, votes, topic, author, created_at)
+    VALUES %L
+    RETURNING *;`,
+    formatArticleData(articleData)
+  );
+
+  await db.query(insertArticlesData);
+
+  let insertCommentsData = format(
+    `INSERT INTO comments
+    (author, article_id, votes,created_at, body)
+    VALUES %L
+    RETURNING *;`,
+    formatCommentData(commentData)
+  );
+
+  console.log("it worked!!!");
+
   // 2. insert data
 };
 
