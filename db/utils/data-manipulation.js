@@ -1,4 +1,5 @@
 const { articleData } = require("../data/development-data");
+const db = require("../connection.js");
 
 // extract any functions you are using to manipulate your data, into this file
 exports.formatTopicData = (topicData) => {
@@ -29,8 +30,32 @@ exports.formatArticleData = (articleData) => {
   return result;
 };
 
-exports.formatCommentData = (commentData) => {};
-//author from created_by --- change of key
+exports.renameKeys = (inputArr, keyToChange, newKey) => {
+  const newArr = [];
+  inputArr.forEach((object) => {
+    newArr.push({...object})
+  })
+  newArr.map((element) => {
+    element[newKey] = element[keyToChange]
+    delete element[keyToChange]
+  })
+  return newArr
+};
+
+exports.articleRef = async (newArticleData, article_id, title) => {
+  const articleRef = {};
+  newArticleData.forEach((article)=>{
+    articleRef[article[title]] = article[article_id] 
+  })
+    return articleRef;
+}
+
+
+exports.formatCommentData = (commentData, articleRef) => {
+  console.log(articleRef)
+
+};
+//author from created_by --- change of key = done
 //article_id from articles (based on belongs too key/value pair) --- refObject
 // votes
 //created_at

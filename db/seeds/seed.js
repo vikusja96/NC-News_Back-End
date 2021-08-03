@@ -5,6 +5,7 @@ const {
   formatUserData,
   formatArticleData,
   formatCommentData,
+  articleRef,
 } = require(`../utils/data-manipulation`);
 
 const seed = async ({ articleData, commentData, topicData, userData }) => {
@@ -72,17 +73,20 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
 
   await db.query(insertArticlesData);
 
+  const newArticleData = await db.query(
+    `SELECT article_id, title FROM articles;`)
+  const articleRefData = await articleRef(newArticleData.rows, 'article_id', 'title')
+
   let insertCommentsData = format(
     `INSERT INTO comments
     (author, article_id, votes,created_at, body)
     VALUES %L
     RETURNING *;`,
-    formatCommentData(commentData)
+    formatCommentData(commentData, articleRefData)
   );
-
+  
   console.log("it worked!!!");
 
-  // 2. insert data
 };
 
 module.exports = seed;

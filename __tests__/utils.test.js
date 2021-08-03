@@ -2,6 +2,8 @@ const {
   formatTopicData,
   formatUserData,
   formatArticleData,
+  renameKeys,
+  articleRef
 } = require("../db/utils/data-manipulation");
 
 describe("testing formaTopicData", () => {
