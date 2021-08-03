@@ -3,7 +3,8 @@ const {
   formatUserData,
   formatArticleData,
   renameKeys,
-  articleRef
+  articleRef,
+  formatCommentData,
 } = require("../db/utils/data-manipulation");
 
 describe("testing formaTopicData", () => {
@@ -210,4 +211,190 @@ describe("testing formatArticleData", () => {
   });
 });
 
-describe("testing formatCommentData", () => {});
+describe("testing renameKey function", () => {
+  it("doesnt mutate the input", () => {
+    const inputArr = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const inputArr2 = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+
+    renameKeys(inputArr, "body", "test");
+    expect(inputArr).toEqual(inputArr2);
+  });
+  it("changes the required key to a new key", () => {
+    const input = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const output = [
+      {
+        legs: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+
+    expect(renameKeys(input, "body", "legs")).toEqual(output);
+  });
+});
+
+describe("testing articleRef function", () => {
+  it("doesnt mutate the original input", () => {
+    const input1 = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const input2 = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+
+    articleRef(input1, "body", "belongs_to");
+    expect(input1).toEqual(input2);
+  });
+  it("produces an object of key/value pairs from the objects provided", () => {
+    const input = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+      {
+        body: "I hate streaming noses",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: 0,
+        created_at: new Date(1604437200000),
+      },
+    ];
+    const output = {
+      " I carry a log — yes. Is it funny to you? It is not to me.":
+        "Living in the shadow of a great man",
+      "I hate streaming noses": "Living in the shadow of a great man",
+    };
+    expect(articleRef(input, "belongs_to", "body")).toEqual(output);
+  });
+});
+
+describe("testing formatCommentData", () => {
+  it("should return an array with nested arrays when passed an array with nested objects", () => {
+    const input = [{}, {}];
+    const output = [[], []];
+    const testArticleRef = { number: 1, colour: "red" };
+    expect(formatCommentData(input, testArticleRef)).toEqual(output);
+  });
+  it("should return nested arrays from objects with key/value pairs", () => {
+    const input = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const output = [
+      [
+        "icellusedkars",
+        1,
+        -100,
+        new Date(1582459260000),
+        " I carry a log — yes. Is it funny to you? It is not to me.",
+      ],
+    ];
+    const testArticleRef = {
+      "Living in the shadow of a great man": 1,
+      colour: "red",
+    };
+    expect(formatCommentData(input, testArticleRef)).toEqual(output);
+  });
+  it("should swap out key names with if required", () => {
+    const input = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const testArticleRef = {
+      "Living in the shadow of a great man": 1,
+      colour: "red",
+    };
+
+    const output = [
+      [
+        "icellusedkars",
+        1,
+        -100,
+        new Date(1582459260000),
+        " I carry a log — yes. Is it funny to you? It is not to me.",
+      ],
+    ];
+
+    expect(formatCommentData(input, testArticleRef)).toEqual(output);
+  });
+  it("doesnt mutate the original entry", () => {
+    const input1 = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+
+    const input2 = [
+      {
+        body: " I carry a log — yes. Is it funny to you? It is not to me.",
+        belongs_to: "Living in the shadow of a great man",
+        created_by: "icellusedkars",
+        votes: -100,
+        created_at: new Date(1582459260000),
+      },
+    ];
+    const testArticleRef = {
+      "Living in the shadow of a great man": 1,
+      colour: "red",
+    };
+
+    formatCommentData(input1, testArticleRef);
+
+    expect(input1).toEqual(input2);
+  });
+});

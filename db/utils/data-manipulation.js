@@ -33,30 +33,28 @@ exports.formatArticleData = (articleData) => {
 exports.renameKeys = (inputArr, keyToChange, newKey) => {
   const newArr = [];
   inputArr.forEach((object) => {
-    newArr.push({...object})
-  })
+    newArr.push({ ...object });
+  });
   newArr.map((element) => {
-    element[newKey] = element[keyToChange]
-    delete element[keyToChange]
-  })
-  return newArr
+    element[newKey] = element[keyToChange];
+    delete element[keyToChange];
+  });
+  return newArr;
 };
 
-exports.articleRef = async (newArticleData, article_id, title) => {
+exports.articleRef = (newArticleData, article_id, title) => {
   const articleRef = {};
-  newArticleData.forEach((article)=>{
-    articleRef[article[title]] = article[article_id] 
-  })
-    return articleRef;
-}
-
+  newArticleData.forEach((article) => {
+    articleRef[article[title]] = article[article_id];
+  });
+  return articleRef;
+};
 
 exports.formatCommentData = (commentData, articleRef) => {
-  console.log(articleRef)
-
+  const arrayData = commentData.map((object) => {
+    if (Object.keys(object).length === 0) return [];
+    const { body, belongs_to, created_by, votes, created_at } = object;
+    return [created_by, articleRef[belongs_to], votes, created_at, body];
+  });
+  return arrayData;
 };
-//author from created_by --- change of key = done
-//article_id from articles (based on belongs too key/value pair) --- refObject
-// votes
-//created_at
-// body

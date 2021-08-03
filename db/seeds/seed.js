@@ -29,18 +29,18 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
     article_id SERIAL PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     body TEXT NOT NULL,
-    votes INT,
+    votes INT DEFAULT 0,
     topic TEXT REFERENCES topics(slug),
     author VARCHAR(60) REFERENCES users(username),
-    created_at TIMESTAMP
+    created_at TIMESTAMP DEFAULT current_timestamp
   );`);
 
   await db.query(`CREATE TABLE comments (
     comment_id SERIAL PRIMARY KEY,
     author VARCHAR(60) REFERENCES users(username),
     article_id INT REFERENCES articles(article_id),
-    votes INT,
-    created_at TIMESTAMP,
+    votes INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT current_timestamp,
     body TEXT
   );`);
   let insertTopicsData = format(
@@ -74,8 +74,14 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
   await db.query(insertArticlesData);
 
   const newArticleData = await db.query(
-    `SELECT article_id, title FROM articles;`)
-  const articleRefData = await articleRef(newArticleData.rows, 'article_id', 'title')
+    `SELECT article_id, title FROM articles;`
+  );
+
+  const articleRefData = await articleRef(
+    newArticleData.rows,
+    "article_id",
+    "title"
+  );
 
   let insertCommentsData = format(
     `INSERT INTO comments
@@ -84,9 +90,7 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
     RETURNING *;`,
     formatCommentData(commentData, articleRefData)
   );
-  
-  console.log("it worked!!!");
-
+  await db.query(insertCommentsData);
 };
 
 module.exports = seed;
