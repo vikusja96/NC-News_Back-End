@@ -7,5 +7,9 @@ app.use(express.json());
 app.use("/api", apiRouter);
 
 //error handling
+app.use((err, req, res, next) => {
+    console.log(err);
+    next(err)
+})
 
 module.exports = app;

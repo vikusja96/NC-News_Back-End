@@ -1,5 +1,5 @@
 const topicsRouter = require("express").Router();
-const { getTopics } = require("../topics.controllers");
+const { getTopics } = require("../constrollers/topics.controller");
 
 topicsRouter.route("/").get(getTopics);
 
