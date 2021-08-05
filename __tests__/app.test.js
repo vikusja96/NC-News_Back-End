@@ -64,24 +64,23 @@ describe('articles', () => {
       });
   });
 
-  test.skip("GET 200: returns an array of articles objects with all properties", async () => {
+  test("GET 200: returns an array of articles objects with all properties", async () => {
     await request(app)
-  .get('/api/articles')
-  .expect(200)
-  .then(({body}) => {
-    const { articles } = body;
-    expect(Array.isArray(articles.rows)).toBe(true)
-    expect(articles.rows[0]).toEqual({
-      author: expect.any(String),
-      title: expect.any(String),
-      article_id: expect.any(Number),
-      body: expect.any(String),
-      comment_count: expect.any(Number),
-      topic: expect.any(String),
-      created_at: expect.any(String),
-      votes: expect.any(Number)
-    })
-  });
+      .get('/api/articles')
+      .expect(200)
+      .then(({body}) => {
+        const { articles } = body;
+        expect(Array.isArray(articles)).toBe(true)
+        expect(articles[0]).toEqual({
+          author: expect.any(String),
+          title: expect.any(String),
+          article_id: expect.any(Number),
+          topic: expect.any(String),
+          created_at: expect.any(String),
+          votes: expect.any(Number),
+          comment_count: expect.any(String)
+        })
+      });
   });
 });
 
@@ -121,6 +120,20 @@ describe('article comments', () => {
           votes: expect.any(Number),
           created_at: expect.any(String),
           body: 'I am testing if this comment will be posted'
+        })
+      })
+  })
+})
+describe.only('api', () => {
+  test('GET 200: responds with all endpoints', async () => {
+    await request(app)
+      .get('/api')
+      .expect(200)
+      .then(({body}) => {
+        const { endpoints } = body;
+        expect(typeof(endpoints)).toBe('object');
+        expect(endpoints['GET /api']).toEqual({
+        description: 'serves up a json representation of all the available endpoints of the api'
         })
       })
   })

@@ -7,15 +7,14 @@ const {
   postCommentByArticleId,
 } = require("../constrollers/articles.controller");
 
-articlesRouter.route("/").get(getArticles);
+articlesRouter.route("/")
+  .get(getArticles);
 
-articlesRouter
-  .route("/:article_id")
+articlesRouter.route("/:article_id")
   .get(getArticlesById)
   .patch(patchArticleById);
 
-articlesRouter
-  .route("/:article_id/comments")
+articlesRouter.route("/:article_id/comments")
   .get(getArticleComments)
   .post(postCommentByArticleId);
 

@@ -1,6 +1,5 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const articles = require("../db/data/test-data/articles");
 
 exports.selectArticleById = async (article_id) => {
     const commentsById = await db.query(
@@ -20,21 +19,33 @@ exports.updateArticleById = async (article_id, votesUpdate) => {
     return articleById.rows[0]
 };
 
-exports.selectArticles = async (sort_by = 'created_at', order = 'DESC', topic = null) => {
-    const articles = await db.query(
-        `SELECT article.author, article.title, article.article_id, article.topic,
-         article.created_at, article.votes, COUNT(comments.comment_id) FROM articles
-         JOIN comments 
-         ON articles.articles_id = comments.articles_id
-         GROUP BY articles.article_id
-         ORDER BY $1 $2;`, [sort_by, order]) // has a problem with $. how to add topic?
-    return articles.rows
+exports.selectArticles = async (sort_by = 'created_at', order = 'desc', topic) => {
+    let queryWithSortByOrder = 
+        `SELECT articles.author, articles.title, articles.article_id, articles.topic,
+        articles.created_at, articles.votes, COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        JOIN comments 
+        ON articles.article_id = comments.article_id
+        `
+    
+    if (topic) { 
+        const articles = await db.query(
+            queryWithSortByOrder += `WHERE articles.topic = $3 
+                                    GROUP BY articles.article_id
+                                    ORDER BY $1, $2;`, [sort_by, order, topic])
+        return articles.rows
+    } else {
+        const articles = await db.query(
+            queryWithSortByOrder += `GROUP BY articles.article_id
+                                    ORDER BY $1, $2;`, [sort_by, order]);
+        return articles.rows
+    };
 };
 
 exports.selectArticleComments = async (article_id) => {
     const comments = await db.query(
-        `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body
-         FROM comments
+        `SELECT comments.comment_id, comments.votes, comments.created_at,
+         comments.author, comments.body FROM comments
          WHERE article_id = $1;`, [article_id])
     return comments.rows;
 };
