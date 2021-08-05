@@ -93,4 +93,4 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
   await db.query(insertCommentsData);
 };
 
-module.exports.seed = seed;
+module.exports = seed;
