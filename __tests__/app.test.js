@@ -22,6 +22,14 @@ describe("topics", () => {
         ]);
       });
   });
+  test("Error 404: responds with an error message when passed route does not exist", async () => {
+    await request(app)
+      .get("/api/notARoute")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not Found!");
+      });
+  });
 });
 
 describe("articles", () => {
@@ -144,12 +152,11 @@ describe("articles", () => {
           });
         });
     });
-    test.only("Error 404: responds with an error message when passed route does not exist", async () => {
+    test("Error 404: responds with an error message when passed route does not exist", async () => {
       await request(app)
         .get("/api/notARoute")
         .expect(404)
         .then(({body}) => {
-          //  instead of error with any message, I got an empty object
           expect(body.msg).toBe("Not Found!");
         });
     });
