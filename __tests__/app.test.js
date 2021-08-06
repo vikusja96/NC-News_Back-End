@@ -40,10 +40,27 @@ describe('articles', () => {
           topic: expect.any(String),
           created_at: expect.any(String),
           votes: expect.any(Number),
-          comment_count: expect.any(Number) 
+          comment_count: expect.any(String) 
         }])
       })
   })
+  test('Error 400: responds with an error message when passed invalid ID', () => {
+    return request(app)
+      .get('/api/articles/notAnID')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Bad Request');
+      });
+    });
+  test('Error 404: responds with an error message when passed id does not exist', () => {
+    return request(app)
+      .get('/api/articles/20')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Not Found!');
+      });
+    });
+  
 
   test('PATCH 200: responds with the updated article', async () => {
     const votesUpdate = {inc_votes : -100};
@@ -124,7 +141,7 @@ describe('article comments', () => {
       })
   })
 })
-describe.only('api', () => {
+describe('api', () => {
   test('GET 200: responds with all endpoints', async () => {
     await request(app)
       .get('/api')

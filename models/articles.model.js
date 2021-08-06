@@ -1,14 +1,24 @@
 const db = require("../db/connection");
 const format = require("pg-format");
+const articles = require("../db/data/test-data/articles");
 
 exports.selectArticleById = async (article_id) => {
+    const maxId = await db.query(
+        `SELECT articles.article_id FROM articles
+        ORDER BY articles.article_id desc
+        LIMIT 1;`)
+
     const commentsById = await db.query(
-        `SELECT * FROM comments WHERE article_id = $1;`, [article_id])
-        comment_count = commentsById.rows.length
-    const articleById = await db.query(
-        `SELECT * FROM articles WHERE article_id = $1;`, [article_id]);
-        articleById.rows[0].comment_count = comment_count;
-    return articleById.rows
+        `SELECT articles.*, COUNT(comments.comment_id) AS comment_count
+        FROM articles
+        JOIN comments USING(article_id)
+        WHERE articles.article_id = $1
+        GROUP BY articles.article_id;`, [article_id]);
+    
+    if (article_id > maxId.rows[0].article_id) {
+        return Promise.reject({ status: 404, msg: 'Not Found!' });
+    }
+    return commentsById.rows 
 };
 
 exports.updateArticleById = async (article_id, votesUpdate) => {
