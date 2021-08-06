@@ -41,7 +41,7 @@ const seed = async ({ articleData, commentData, topicData, userData }) => {
     article_id INT REFERENCES articles(article_id),
     votes INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT current_timestamp,
-    body TEXT
+    body TEXT NOT NULL
   );`);
   let insertTopicsData = format(
     `INSERT INTO topics
