@@ -56,18 +56,11 @@ exports.selectArticles = async (
         `;
   if (topic) {
     const articles = await db.query(
-      (queryWithSortByOrder += `WHERE articles.topic = $3 
-                                    GROUP BY articles.article_id
-                                    ORDER BY $1, $2;`),
-      [sort_by, order, topic]
-    );
+      (queryWithSortByOrder += `WHERE articles.topic = $3 GROUP BY articles.article_id ORDER BY $1, $2;`),[sort_by, order, topic]);
     return articles.rows;
   } else {
     const articles = await db.query(
-      (queryWithSortByOrder += `GROUP BY articles.article_id
-                                    ORDER BY $1, $2;`),
-      [sort_by, order]
-    );
+      (queryWithSortByOrder += `GROUP BY articles.article_id ORDER BY $1, $2;`),[sort_by, order]);
     return articles.rows;
   }
 };

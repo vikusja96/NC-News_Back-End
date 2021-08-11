@@ -1,45 +1,32 @@
 const { articleData } = require("../data/development-data");
 const db = require("../connection.js");
 
-// extract any functions you are using to manipulate your data, into this file
 exports.formatTopicData = (topicData) => {
-  const result = topicData.map((dataObject) => {
-    return [dataObject.slug, dataObject.description];
+  const topicDataInArr = topicData.map((topic) => {
+    return [topic.slug, topic.description];
   });
-  return result;
+  return topicDataInArr;
 };
 
 exports.formatUserData = (userData) => {
-  const result = userData.map((object) => {
-    return [object.username, object.avatar_url, object.name];
+  const userDataInArr = userData.map((user) => {
+    return [user.username, user.avatar_url, user.name];
   });
-  return result;
+  return userDataInArr;
 };
 
 exports.formatArticleData = (articleData) => {
-  const result = articleData.map((object) => {
+  const articleDataInArr = articleData.map((article) => {
     return [
-      object.title,
-      object.body,
-      object.votes,
-      object.topic,
-      object.author,
-      object.created_at,
+      article.title,
+      article.body,
+      article.votes,
+      article.topic,
+      article.author,
+      article.created_at,
     ];
   });
-  return result;
-};
-
-exports.renameKeys = (inputArr, keyToChange, newKey) => {
-  const newArr = [];
-  inputArr.forEach((object) => {
-    newArr.push({ ...object });
-  });
-  newArr.map((element) => {
-    element[newKey] = element[keyToChange];
-    delete element[keyToChange];
-  });
-  return newArr;
+  return articleDataInArr;
 };
 
 exports.articleRef = (newArticleData, article_id, title) => {
@@ -51,10 +38,10 @@ exports.articleRef = (newArticleData, article_id, title) => {
 };
 
 exports.formatCommentData = (commentData, articleRef) => {
-  const arrayData = commentData.map((object) => {
-    if (Object.keys(object).length === 0) return [];
-    const { body, belongs_to, created_by, votes, created_at } = object;
+  const commentDataInArr = commentData.map((comment) => {
+    if (Object.keys(comment).length === 0) return [];
+    const { body, belongs_to, created_by, votes, created_at } = comment;
     return [created_by, articleRef[belongs_to], votes, created_at, body];
   });
-  return arrayData;
+  return commentDataInArr;
 };
