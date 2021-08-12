@@ -56,7 +56,7 @@ npm run seed:prod
 ## Step 5 - Hosting a PSQL database using Heroku
 This project was hosted with Heroku and you can check all available endpoints on API here: https://vk-nc-news-server.herokuapp.com/api.
 
-If you would like to hoste with Heroku folow instructions in `hosting.md` file or choose your hosting way. 
+You can choose your hosting way. 
 
 ## Minimun versions needed!
 Your node.js version shoul not be earlier than `16.3.0`. To check you node.js version use command:

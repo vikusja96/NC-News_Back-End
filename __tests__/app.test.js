@@ -404,3 +404,28 @@ describe("api", () => {
       });
   });
 });
+
+describe('users', () => {
+  test('GET 200: responds with an array of object', async () => {
+    await request(app)
+    .get('/api/users')
+    .expect(200)
+    .then(({body}) => {
+      const {users} = body;
+      expect(Array.isArray(users)).toBe(true)
+      users.forEach((user) => {
+        expect(user).toEqual(expect.objectContaining({
+          username: expect.any(String)
+        }))
+      })
+    })
+  })
+  test("Error 404: responds with an error message when passed route does not exist", async () => {
+    await request(app)
+      .get("/api/notARoute")
+      .expect(404)
+      .then(({body}) => {
+        expect(body.msg).toBe("Not Found!");
+      });
+  });
+})
