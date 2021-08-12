@@ -3,6 +3,7 @@ const testData = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
 const app = require("../app.js");
 const request = require("supertest");
+const jestSorted = require('jest-sorted')
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -141,7 +142,9 @@ describe("articles", () => {
         .then(({ body }) => {
           const { articles } = body;
           expect(Array.isArray(articles)).toBe(true);
-          expect(articles[0]).toEqual({
+          expect(articles.length).toBe(4);
+          articles.forEach((article) => {
+          expect(article).toEqual(expect.objectContaining({
             author: expect.any(String),
             title: expect.any(String),
             article_id: expect.any(Number),
@@ -149,7 +152,81 @@ describe("articles", () => {
             created_at: expect.any(String),
             votes: expect.any(Number),
             comment_count: expect.any(String),
+          }));          
           });
+        })
+    });
+    test("GET 200: returns an array of articles objects with default sort & order", async () => {
+      await request(app)
+        .get("/api/articles")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy('created_at', {descending: true});
+        });
+    });
+    test("GET 200: accepts sort_by query", async () => {
+      await request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy('votes', {descending: true});
+        });
+    });
+    test("GET 200: accepts order query", async () => {
+      await request(app)
+        .get("/api/articles?order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          const { articles } = body;
+          expect(articles).toBeSortedBy('created_at');
+        });
+    });
+    test("GET 200: accepts topic query", async () => {
+      await request(app)
+        .get("/api/articles?topic=mitch")
+        .expect(200)
+        .then(({ body }) => { 
+          const {articles} = body;
+          articles.forEach((article) => {
+            expect(article.topic).toBe('mitch')
+          })
+        });
+    });
+    test("GET 200: topic exists but has no articles, responds with an empty array ", async () => {
+      await request(app)
+        .get("/api/articles?topic=paper")
+        .expect(200)
+        .then(({ body }) => {
+          const {articles} = body;
+          articles.forEach((article) => {
+            expect(article.topic).toEqual([])
+          })
+        });
+    });
+    test("GET 400: ivalid sort_by query", async () => {
+      await request(app)
+        .get("/api/articles?sort_by=something")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request!");
+        });
+    });
+    test("GET 400: ivalid order query", async () => {
+      await request(app)
+        .get("/api/articles?order=something")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request!");
+        });
+    });
+    test("GET 404: non-existent topic query", async () => {
+      await request(app)
+        .get("/api/articles?topic=something")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not Found!");
         });
     });
     test("Error 404: responds with an error message when passed route does not exist", async () => {
@@ -172,12 +249,15 @@ describe("comments by article", () => {
         .then(({ body }) => {
           const { comments } = body;
           expect(Array.isArray(comments)).toBe(true);
-          expect(comments[0]).toEqual({
-            comment_id: expect.any(Number),
-            votes: expect.any(Number),
-            created_at: expect.any(String),
-            author: expect.any(String),
-            body: expect.any(String),
+          expect(comments.length).toBe(13);
+          comments.forEach((comment) => {
+            expect(comment).toEqual(expect.objectContaining({
+              comment_id: expect.any(Number),
+              votes: expect.any(Number),
+              created_at: expect.any(String),
+              author: expect.any(String),
+              body: expect.any(String)
+          }));          
           });
         });
     });
@@ -195,6 +275,17 @@ describe("comments by article", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("Not Found!");
+        });
+    });
+    test("GET 200: valid id but has no comments, respons with an empty array", async () => {
+      await request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          const { comments } = body;
+          expect(Array.isArray(comments)).toBe(true);
+          expect(comments.length).toBe(0);
+          expect(comments).toEqual([]);           
         });
     });
   });
@@ -256,6 +347,19 @@ describe("comments by article", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("Bad Request!");
+        });
+    });
+    test("Error 404: responds with an error message when passed username does not exist", async () => {
+      const newComment = {
+        username: "viktoria",
+        body: "I am testing if this comment will be posted",
+      };
+      await request(app)
+        .post("/api/articles/20/comments")
+        .send(newComment)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Not Found!");
         });
     });
     test("Error 400: responds with an error message when passed incorrect type", async () => {

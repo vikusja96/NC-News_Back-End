@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const format = require("pg-format");
 
 exports.selectArticleById = async (article_id) => {
   const maxId = await db.query(
@@ -43,24 +42,42 @@ exports.updateArticleById = async (article_id, votesUpdate) => {
   return articleById.rows[0];
 };
 
-exports.selectArticles = async (
-  sort_by = "created_at",
-  order = "desc",
-  topic
-) => {
-  let queryWithSortByOrder = `SELECT articles.author, articles.title, articles.article_id, articles.topic,
+exports.selectArticles = async (sort_by = "created_at", order = "desc", topic) => {
+  if(sort_by && !["author", "title", "article_id", "topic", "created_at", "votes","comment_count"].includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Bad Request!" });
+  }
+
+  if(order && !["desc", "asc"].includes(order)) {
+    return Promise.reject({ status: 400, msg: "Bad Request!" });
+  }
+
+  const topicInArticlesTable = await db.query(`SELECT * FROM articles WHERE topic = $1;`, [topic]);
+  const topicInTopicTable = await db.query(`SELECT * FROM topics WHERE slug = $1`, [topic]);
+  
+  if (topic && topicInArticlesTable.rows.length === 0 && topicInTopicTable.rows.length === 0) {
+    return Promise.reject({ status: 404, msg: "Not Found!" });
+  } else if (topic && topicInArticlesTable.rows.length === 0) {
+    return [];
+  }
+
+  let queryWithJoinOn = `SELECT articles.author, articles.title, articles.article_id, articles.topic,
         articles.created_at, articles.votes, COUNT(comments.comment_id) AS comment_count
         FROM articles
         JOIN comments 
-        ON articles.article_id = comments.article_id
-        `;
+        ON articles.article_id = comments.article_id`;
+  let queryWithWhere = ` WHERE articles.topic = $1`;
+  let queryWithGroupBy = ` GROUP BY articles.article_id ORDER BY ${sort_by} ${order};`
+  
   if (topic) {
-    const articles = await db.query(
-      (queryWithSortByOrder += `WHERE articles.topic = $3 GROUP BY articles.article_id ORDER BY $1, $2;`),[sort_by, order, topic]);
+    const articles = await db.query(`
+      ${queryWithJoinOn}
+      ${queryWithWhere}
+      ${queryWithGroupBy}`, [topic]);
     return articles.rows;
   } else {
-    const articles = await db.query(
-      (queryWithSortByOrder += `GROUP BY articles.article_id ORDER BY $1, $2;`),[sort_by, order]);
+    const articles = await db.query(`
+      ${queryWithJoinOn}
+      ${queryWithGroupBy}`);
     return articles.rows;
   }
 };
