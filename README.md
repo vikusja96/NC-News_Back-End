@@ -1,7 +1,7 @@
 # Northcoders News 
 
 ## About
-This is a full-stack project that was created to demonstrate the knowledge, that was learned while studying on Northcoders Coding Bootcamp. The project was built by using PostgreSQL database, ExpressJS server with using TDD and Heroku hosting.  
+This is a first part of the full-stack project that was created to demonstrate the knowledge, that was learned while studying on Northcoders Coding Bootcamp. The back-end project was built by using PostgreSQL database, Node.js & ExpressJS server with using TDD and Heroku hosting.  
 
 ## Step 1 - Clone the repo 
 You need to clone this repo to be able to work with it. 
@@ -18,7 +18,7 @@ You need to clone this repo to be able to work with it.
 
 
 ## Step 2 - Instal dependencies
-To instal dependences use command:
+To instal dependencies use command:
 ```
 npm install
 ```
@@ -27,7 +27,7 @@ npm install
 You need to create _two_ `.env` files for this project:
  1. Create file `.env.test` and add `PGDATABASE=nc_news_test`
  
- 2. Create fiel `.env.development` and add `PGDATABASE=nc_news`
+ 2. Create file `.env.development` and add `PGDATABASE=nc_news`
  
  3. Check that these `.env` files are `.gitignored`.
 
@@ -39,7 +39,7 @@ Before seeding the database make sure that `PostgreSQL` is running on your compu
 ```
 npm run seed
 ```
-2. To test the datatbase and API quiries use command:
+2. To test the database and API queries use command:
 ```
 npm run app.test.js
 ```
@@ -48,7 +48,7 @@ npm run app.test.js
 npm run utils.test.js
 ```
 
-If you are happy with the tests before hosting them you should seed the developmebnt database by using command:
+If you are happy with the tests before hosting them you should seed the development database by using command:
 ```
 npm run seed:prod
 ```
@@ -58,8 +58,8 @@ This project was hosted with Heroku and you can check all available endpoints on
 
 You can choose your hosting way. 
 
-## Minimun versions needed!
-Your node.js version shoul not be earlier than `16.3.0`. To check you node.js version use command:
+## Minimum versions needed!
+Your node.js version should not be earlier than `16.3.0`. To check you node.js version use command:
 ```
 node -v
 ```
